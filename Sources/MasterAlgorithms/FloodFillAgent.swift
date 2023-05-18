@@ -604,22 +604,54 @@ public struct FloodFillAgent {
         return (path, agentClonned.metrics)
     }
     
+    public mutating func updateInternalMetrics(otherMetrics: [String:Int]) {
+        if let count = metrics["internalForwards"] {
+            if let internalCount = otherMetrics["forwards"] {
+                metrics.updateValue(count + internalCount, forKey: "internalForwards")
+            }
+        } else {
+            if let internalCount = otherMetrics["forwards"] {
+                metrics.updateValue(internalCount, forKey: "internalForwards")
+            }
+        }
+        if let count = metrics["internalTurnLefts"] {
+            if let internalCount = otherMetrics["turnLeft"] {
+                metrics.updateValue(count + internalCount, forKey: "internalTurnLefts")
+            }
+        } else {
+            if let internalCount = otherMetrics["turnLeft"] {
+                metrics.updateValue(internalCount, forKey: "internalTurnLefts")
+            }
+        }
+        if let count = metrics["internalTurnRights"] {
+            if let internalCount = otherMetrics["turnRight"] {
+                metrics.updateValue(count + internalCount, forKey: "internalTurnRights")
+            }
+        } else {
+            if let internalCount = otherMetrics["turnRight"] {
+                metrics.updateValue(internalCount, forKey: "internalTurnRights")
+            }
+        }
+        
+        if let count = metrics["forwards"], let internalCount = metrics["internalForwards"] {
+            metrics.updateValue(count + internalCount, forKey: "totalForwards")
+        }
+        if let count = metrics["turnLeft"], let internalCount = metrics["internalTurnLefts"] {
+            metrics.updateValue(count + internalCount, forKey: "totalTurnLefts")
+        }
+        if let count = metrics["turnRight"], let internalCount = metrics["internalTurnRights"] {
+            metrics.updateValue(count + internalCount, forKey: "totalTurnRights")
+        }
+    }
+    
     public mutating func goTo(postion otherPosition: MatrixIndex) {
         log("Go to: \(otherPosition) <<\(matrix.getRawIndex(at: otherPosition) ?? -1)>>")
         
         goBack(initial: true)
         
-        let (path, clonMetrics) = pathTo(position: otherPosition)
+        let (path, otherMetrics) = pathTo(position: otherPosition)
         
-        if let count = metrics["backwards"] {
-            if let forwards = clonMetrics["forwards"] {
-                metrics.updateValue(count + forwards, forKey: "backwards")
-            }
-        } else {
-            if let forwards = clonMetrics["forwards"] {
-                metrics.updateValue(forwards, forKey: "backwards")
-            }
-        }
+        updateInternalMetrics(otherMetrics: otherMetrics)
         
         for indexPath in path {
             if indexLeft == indexPath {
@@ -723,12 +755,17 @@ public struct FloodFillAgent {
         
         if index == goalIndex {
             log("GOAL!!!")
+            
+            metrics.updateValue(1, forKey: "success")
+            
             var agentClonned = clone()
             
             agentClonned.position = position
             agentClonned.goBack(initial: true)
             
             var path = agentClonned.backStack
+            
+            updateInternalMetrics(otherMetrics: agentClonned.metrics)
             
             path.append(0)
             path.reverse()
@@ -740,17 +777,9 @@ public struct FloodFillAgent {
         
         if stack.isEmpty {
             log("ERROR: NOT RECHEABLE")
-            var agentClonned = clone()
-            
-            agentClonned.position = position
-            agentClonned.goBack(initial: true)
-            
-            var path = agentClonned.backStack
-            
-            path.append(0)
-            path.reverse()
-            log("PATH: \(path)")
-            return path
+            metrics.updateValue(0, forKey: "success")
+            log("PATH: []")
+            return []
         }
         
         return goToGoal(from: goalIndex, withDescription: description)

@@ -101,7 +101,24 @@ final class FloodFillAgentTests: XCTestCase {
         
         agent.describe()
         
-        XCTAssert(path == [0, 5, 10, 11, 16, 15, 20, 21, 22, 17, 18])
+        XCTAssert(path == [])
+        
+    }
+    
+    func testMetrics() throws {
+        
+        var agent = FloodFillAgent(debug: false, matrixWall: MatrixWall.build([
+            [1100, 0110],
+            [1001, 0011],
+        ]))
+
+        let path = agent.goToGoal(at: (row: 1, column: 1), withDescription: false)
+
+        print("PATH TO GOAL: \(path)")
+        
+        agent.describe()
+        
+        XCTAssert(path == [0, 1, 3])
         
     }
 
