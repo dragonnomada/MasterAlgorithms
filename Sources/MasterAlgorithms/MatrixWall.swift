@@ -90,7 +90,7 @@ public struct MatrixWall {
 
 public extension FloodFillAgent {
     
-    init(debug: Bool = true, name: String = "default", position: MatrixIndex = (0, 0), orientation: FloodFillAgentOrientation = .south, matrixWall: MatrixWall = MatrixWall(matrix: Matrix.squared(2), walls: []), stack: [Int] = [], visited: [Int] = [], backStack: [Int] = []) {
+    init(debug: Bool = true, name: String = "default", position: MatrixIndex = (0, 0), orientation: FloodFillAgentOrientation = .south, matrixWall: MatrixWall = MatrixWall(matrix: Matrix.squared(2), walls: []), stack: [Int] = [], visited: [Int] = [], backStack: [Int] = [], metrics: [String:Int] = [:]) {
         self.init(
             debug: debug,
             name: name,
@@ -100,7 +100,8 @@ public extension FloodFillAgent {
             walls: matrixWall.walls,
             stack: stack,
             visited: visited,
-            backStack: backStack
+            backStack: backStack,
+            metrics: metrics
         )
     }
     

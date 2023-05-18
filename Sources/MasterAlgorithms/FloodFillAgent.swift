@@ -117,7 +117,9 @@ public struct FloodFillAgent {
     
     public var backStack: [Int] = []
     
-    public init(debug: Bool = true, name: String = "default", position: MatrixIndex = (0, 0), orientation: FloodFillAgentOrientation = .south, matrix: Matrix = Matrix.squared(2), walls: [(Int, Int)] = [], stack: [Int] = [], visited: [Int] = [], backStack: [Int] = []) {
+    public var metrics: [String:Int] = [:]
+    
+    public init(debug: Bool = true, name: String = "default", position: MatrixIndex = (0, 0), orientation: FloodFillAgentOrientation = .south, matrix: Matrix = Matrix.squared(2), walls: [(Int, Int)] = [], stack: [Int] = [], visited: [Int] = [], backStack: [Int] = [], metrics: [String:Int] = [:]) {
         
         var initialMatrix = matrix
         
@@ -134,6 +136,7 @@ public struct FloodFillAgent {
         self.stack = stack
         self.visited = visited
         self.backStack = backStack
+        self.metrics = metrics
     }
     
     public func log(_ message: String) {
@@ -146,6 +149,7 @@ public struct FloodFillAgent {
         print("Flood-Fill Agent: \(name)")
         print("| row: \(position.row) column: \(position.column)")
         print("| orientation: \(orientation.rawValue)")
+        print("| metrics: \(metrics)")
         printMatrix(matrix: matrix, walls: walls, stack: stack, visited: visited, position: position)
     }
     
@@ -279,6 +283,12 @@ public struct FloodFillAgent {
         
         guard let value = matrix.getValue(at: position)
         else { return }
+        
+        if let count = metrics["scans"] {
+            metrics.updateValue(count + 1, forKey: "scans")
+        } else {
+            metrics["scans"] = 1
+        }
         
         if let indexLeft = indexLeft {
             if !walls.contains(where: { $0.indexA == index && $0.indexB == indexLeft }) && !visited.contains(where: {$0 == indexLeft}) {
@@ -414,6 +424,8 @@ public struct FloodFillAgent {
     }
     
     public mutating func turnLeft() {
+        
+        
         log("TURN LEFT \(orientation.rawValue)")
         switch orientation {
         case .north:
@@ -426,6 +438,12 @@ public struct FloodFillAgent {
             orientation = .north
         }
         log("-> \(orientation.rawValue)")
+        
+        if let count = metrics["turnLeft"] {
+            metrics.updateValue(count + 1, forKey: "turnLeft")
+        } else {
+            metrics["turnLeft"] = 1
+        }
     }
     
     public mutating func turnRight() {
@@ -441,6 +459,12 @@ public struct FloodFillAgent {
             orientation = .north
         }
         log("-> \(orientation.rawValue)")
+        
+        if let count = metrics["turnRight"] {
+            metrics.updateValue(count + 1, forKey: "turnRight")
+        } else {
+            metrics["turnRight"] = 1
+        }
     }
     
     public mutating func turn(direction: FloodFillAgentDirection) {
@@ -508,6 +532,12 @@ public struct FloodFillAgent {
         } else {
             log("ERROR MOVING FORWADING ON \(position) <<\(index ?? -1)>> [\(orientation.rawValue)]")
         }
+        
+        if let count = metrics["forwards"] {
+            metrics.updateValue(count + 1, forKey: "forwards")
+        } else {
+            metrics["forwards"] = 1
+        }
     }
     
     public mutating func goBack(initial: Bool = false) {
@@ -520,13 +550,19 @@ public struct FloodFillAgent {
         guard let index = index else { return }
         
         if index == matrix.firstRawIndex {
-            log("Robot is in origin")
+            log("Agent is in origin")
             return
         }
         
         log("Going back to origin from \(position) <<\(index)>>")
         
         backStack.append(index)
+        
+        if let count = metrics["seachLowestDirection"] {
+            metrics.updateValue(count + 1, forKey: "seachLowestDirection")
+        } else {
+            metrics["seachLowestDirection"] = 1
+        }
         
         if let lowestDirection = seachLowestDirection() {
             turn(direction: lowestDirection)
@@ -536,7 +572,7 @@ public struct FloodFillAgent {
     }
     
     public func clone() -> FloodFillAgent {
-        log("Clonning robot: \(name) - clon")
+        log("Clonning agent: \(name) - clon")
         return FloodFillAgent(
             debug: debug,
             name: "\(name) - clon",
@@ -545,27 +581,27 @@ public struct FloodFillAgent {
             matrix: matrix,
             walls: walls,
             stack: stack,
-            visited: visited
+            visited: visited,
+            metrics: [:]
         )
     }
     
-    public func pathTo(position otherPosition: MatrixIndex) -> RawIndexPath {
+    public func pathTo(position otherPosition: MatrixIndex) -> (path: RawIndexPath, metrics: [String:Int]) {
         log("Finding path between \(position) <<\(index ?? -1)>> => \(otherPosition) <<\(matrix.getRawIndex(at: otherPosition) ?? -1)>>")
         
-        var robotClonned = clone()
+        var agentClonned = clone()
         
-        robotClonned.position = otherPosition
-        robotClonned.goBack(initial: true)
+        agentClonned.position = otherPosition
+        agentClonned.goBack(initial: true)
         
-        var path = robotClonned.backStack
+        var path = agentClonned.backStack
         
         //path.append(0)
         path.reverse()
         
-        
         log("Path: \(path)")
         
-        return path
+        return (path, agentClonned.metrics)
     }
     
     public mutating func goTo(postion otherPosition: MatrixIndex) {
@@ -573,7 +609,17 @@ public struct FloodFillAgent {
         
         goBack(initial: true)
         
-        let path = pathTo(position: otherPosition)
+        let (path, clonMetrics) = pathTo(position: otherPosition)
+        
+        if let count = metrics["backwards"] {
+            if let forwards = clonMetrics["forwards"] {
+                metrics.updateValue(count + forwards, forKey: "backwards")
+            }
+        } else {
+            if let forwards = clonMetrics["forwards"] {
+                metrics.updateValue(forwards, forKey: "backwards")
+            }
+        }
         
         for indexPath in path {
             if indexLeft == indexPath {
@@ -649,6 +695,12 @@ public struct FloodFillAgent {
         
         scan()
         
+        if let count = metrics["searchLowest"] {
+            metrics.updateValue(count + 1, forKey: "searchLowest")
+        } else {
+            metrics["searchLowest"] = 1
+        }
+        
         if let lowestIndex = searchLowest() {
             if let position = matrix.getIndex(from: lowestIndex) {
                 goTo(postion: position)
@@ -663,14 +715,20 @@ public struct FloodFillAgent {
             describe()
         }
         
+        if let count = metrics["goals"] {
+            metrics.updateValue(count + 1, forKey: "goals")
+        } else {
+            metrics["goals"] = 1
+        }
+        
         if index == goalIndex {
             log("GOAL!!!")
-            var robotClonned = clone()
+            var agentClonned = clone()
             
-            robotClonned.position = position
-            robotClonned.goBack(initial: true)
+            agentClonned.position = position
+            agentClonned.goBack(initial: true)
             
-            var path = robotClonned.backStack
+            var path = agentClonned.backStack
             
             path.append(0)
             path.reverse()
@@ -682,12 +740,12 @@ public struct FloodFillAgent {
         
         if stack.isEmpty {
             log("ERROR: NOT RECHEABLE")
-            var robotClonned = clone()
+            var agentClonned = clone()
             
-            robotClonned.position = position
-            robotClonned.goBack(initial: true)
+            agentClonned.position = position
+            agentClonned.goBack(initial: true)
             
-            var path = robotClonned.backStack
+            var path = agentClonned.backStack
             
             path.append(0)
             path.reverse()
