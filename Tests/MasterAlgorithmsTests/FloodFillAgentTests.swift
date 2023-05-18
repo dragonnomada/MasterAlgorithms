@@ -62,7 +62,7 @@ final class FloodFillAgentTests: XCTestCase {
         
         var agent = FloodFillAgent(debug: false, matrix: mat, walls: walls)
 
-        let path = agent.goToGoal(on: (row: 2, column: 2))
+        let path = agent.goToGoal(on: (row: 2, column: 2), withDescription: false)
 
         print("PATH TO GOAL: \(path)")
         

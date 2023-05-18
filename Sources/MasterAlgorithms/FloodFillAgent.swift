@@ -757,7 +757,7 @@ public struct FloodFillAgent {
         
         next()
         
-        return goToGoal(at: goalIndex)
+        return goToGoal(at: goalIndex, withDescription: description)
     }
     
     public mutating func goToGoal(on position: (row: Int, column: Int), withDescription description: Bool = true) -> [Int] {
