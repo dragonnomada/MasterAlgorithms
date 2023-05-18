@@ -189,12 +189,12 @@ public struct FloodFillAgent {
                 }
                 
                 if walls.contains(where: { $0 == index && $1 == indexUp }) {
-                    print("\(left ? "|" : "=")===\(right ? "|" : "=")", terminator: "")
+                    print("\(left ? "|" : "=")=====\(right ? "|" : "=")", terminator: "")
                 } else {
                     if rowIndex == 0 {
-                        print("\(left ? "+" : "=")===\(right ? "+" : "=")", terminator: "")
+                        print("\(left ? "+" : "=")=====\(right ? "+" : "=")", terminator: "")
                     } else {
-                        print("\(left ? "|" : " ")   \(right ? "|" : " ")", terminator: "")
+                        print("\(left ? "|" : " ")     \(right ? "|" : " ")", terminator: "")
                     }
                 }
             }
@@ -231,7 +231,7 @@ public struct FloodFillAgent {
                     right = "|"
                 }
                 
-                var symbol = " \(value < 0 ? "*" : "\(value)") "
+                var symbol = " \(value < 0 ? " * " : "\(String(format: "%03d", value))") "
                 
                 var isStacked = false
                 var isVisited = false
@@ -245,17 +245,17 @@ public struct FloodFillAgent {
                 }
                 
                 if position.row == rowIndex && position.column == columnIndex {
-                    symbol = "<\(value < 0 ? "*" : "\(value)")>"
+                    symbol = "<\(value < 0 ? " * " : "\(String(format: "%03d", value))")>"
                 } else {
                     if isStacked {
                         if isVisited {
-                            symbol = "{\(value < 0 ? "*" : "\(value)")}"
+                            symbol = "{\(value < 0 ? " * " : "\(String(format: "%03d", value))")}"
                         } else {
-                            symbol = "[\(value < 0 ? "*" : "\(value)")]"
+                            symbol = "[\(value < 0 ? " * " : "\(String(format: "%03d", value))")]"
                         }
                     } else {
                         if isVisited {
-                            symbol = "(\(value < 0 ? "*" : "\(value)"))"
+                            symbol = "(\(value < 0 ? " * " : "\(String(format: "%03d", value))"))"
                         }
                     }
                 }
@@ -269,7 +269,7 @@ public struct FloodFillAgent {
         
         // DOWN
         for j in 0..<matrix.columns {
-            print("\(j == matrix.firstColumn ? "+" : "=")===\(j == matrix.lastColumn ? "+" : "=")", terminator: "")
+            print("\(j == matrix.firstColumn ? "+" : "=")=====\(j == matrix.lastColumn ? "+" : "=")", terminator: "")
         }
         print()
     }

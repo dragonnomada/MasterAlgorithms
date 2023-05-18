@@ -74,12 +74,14 @@ final class FloodFillAgentTests: XCTestCase {
         ]))
 
         let path = agent.goToGoal(at: (row: 2, column: 2), withDescription: false)
+//        let path = agent.goToGoal(at: (row: 2, column: 3), withDescription: false)
 
         print("PATH TO GOAL: \(path)")
         
         agent.describe()
         
         XCTAssert(path == [0, 1, 2, 3, 4, 9, 8, 7, 12])
+        //        XCTAssert(path == [0, 5, 10, 11, 16, 15, 20, 21, 22, 17, 18, 13])
         
     }
 
