@@ -680,6 +680,21 @@ public struct FloodFillAgent {
         
         next()
         
+        if stack.isEmpty {
+            log("ERROR: NOT RECHEABLE")
+            var robotClonned = clone()
+            
+            robotClonned.position = position
+            robotClonned.goBack(initial: true)
+            
+            var path = robotClonned.backStack
+            
+            path.append(0)
+            path.reverse()
+            log("PATH: \(path)")
+            return path
+        }
+        
         return goToGoal(from: goalIndex, withDescription: description)
     }
     
