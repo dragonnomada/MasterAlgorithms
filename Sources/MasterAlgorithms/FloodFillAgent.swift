@@ -27,6 +27,8 @@ public struct FloodFillAgent {
     
     public var name: String = "default"
     
+    public let initialPosition: MatrixIndex
+    
     public var position: MatrixIndex = (0, 0)
     
     public var positionLeft: MatrixIndex? {
@@ -129,6 +131,7 @@ public struct FloodFillAgent {
         
         self.debug = debug
         self.name = name
+        self.initialPosition = position
         self.position = position
         self.orientation = orientation
         self.matrix = initialMatrix
@@ -424,8 +427,6 @@ public struct FloodFillAgent {
     }
     
     public mutating func turnLeft() {
-        
-        
         log("TURN LEFT \(orientation.rawValue)")
         switch orientation {
         case .north:
@@ -549,7 +550,7 @@ public struct FloodFillAgent {
         
         guard let index = index else { return }
         
-        if index == matrix.firstRawIndex {
+        if matrix.getValue(at: position) == 0 {
             log("Agent is in origin")
             return
         }
@@ -767,7 +768,7 @@ public struct FloodFillAgent {
             
             updateInternalMetrics(otherMetrics: agentClonned.metrics)
             
-            path.append(0)
+            path.append(matrix.getRawIndex(at: initialPosition) ?? -1)
             path.reverse()
             log("PATH: \(path)")
             return path
