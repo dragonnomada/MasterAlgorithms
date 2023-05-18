@@ -20,7 +20,7 @@ final class FloodFillAgentTests: XCTestCase {
 
     func testExample() throws {
         let mat = [
-            [0, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1],
             [-1, -1, -1, -1, -1],
             [-1, -1, -1, -1, -1],
             [-1, -1, -1, -1, -1],
@@ -59,7 +59,7 @@ final class FloodFillAgentTests: XCTestCase {
             (21, 16),
             (23, 18),
         ]
-        
+         
         var agent = FloodFillAgent(debug: false, matrix: mat, walls: walls)
 
         let path = agent.goToGoal(on: (row: 2, column: 2), withDescription: false)

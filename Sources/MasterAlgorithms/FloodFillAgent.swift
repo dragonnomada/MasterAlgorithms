@@ -189,12 +189,19 @@ public struct FloodFillAgent {
     
     public var backStack: [Int] = []
     
-    public init(debug: Bool = true, name: String = "default", position: (row: Int, column: Int) = (0, 0), orientation: FloodFillAgentOrientation = .south, matrix: [[Int]] = [[0, -1],[-1, -1]], walls: [(Int, Int)] = [], stack: [Int] = [], visited: [Int] = [], backStack: [Int] = []) {
+    public init(debug: Bool = true, name: String = "default", position: (row: Int, column: Int) = (0, 0), orientation: FloodFillAgentOrientation = .south, matrix: [[Int]] = [[-1, -1],[-1, -1]], walls: [(Int, Int)] = [], stack: [Int] = [], visited: [Int] = [], backStack: [Int] = []) {
+        
+        var initialMatrix = matrix
+        
+        if initialMatrix[position.row][position.column] == -1 {
+            initialMatrix[position.row][position.column] = 0
+        }
+        
         self.debug = debug
         self.name = name
         self.position = position
         self.orientation = orientation
-        self.matrix = matrix
+        self.matrix = initialMatrix
         self.walls = walls
         self.stack = stack
         self.visited = visited
