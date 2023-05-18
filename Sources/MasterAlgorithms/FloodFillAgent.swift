@@ -27,161 +27,89 @@ public struct FloodFillAgent {
     
     public var name: String = "default"
     
-    public var position: (row: Int, column: Int) = (0, 0)
+    public var position: MatrixIndex = (0, 0)
     
-    public var positionLeft: (row: Int, column: Int)? {
+    public var positionLeft: MatrixIndex? {
         switch orientation {
         case .north:
-            if position.column == firstColumn {
-                return nil
-            }
-            return (position.row, position.column - 1)
+            return matrix.selectIndex(at: position, direction: .left)
         case .south:
-            if position.column == lastColumn {
-                return nil
-            }
-            return (position.row, position.column + 1)
+            return matrix.selectIndex(at: position, direction: .right)
         case .east:
-            if position.row == firstRow {
-                return nil
-            }
-            return (position.row - 1, position.column)
+            return matrix.selectIndex(at: position, direction: .up)
         case .west:
-            if position.row == lastRow {
-                return nil
-            }
-            return (position.row + 1, position.column)
+            return matrix.selectIndex(at: position, direction: .down)
         }
     }
     
-    public var positionRight: (row: Int, column: Int)? {
+    public var positionRight: MatrixIndex? {
         switch orientation {
         case .north:
-            if position.column == lastColumn {
-                return nil
-            }
-            return (position.row, position.column + 1)
+            return matrix.selectIndex(at: position, direction: .right)
         case .south:
-            if position.column == firstColumn {
-                return nil
-            }
-            return (position.row, position.column - 1)
+            return matrix.selectIndex(at: position, direction: .left)
         case .east:
-            if position.row == lastRow {
-                return nil
-            }
-            return (position.row + 1, position.column)
+            return matrix.selectIndex(at: position, direction: .down)
         case .west:
-            if position.row == firstRow {
-                return nil
-            }
-            return (position.row - 1, position.column)
+            return matrix.selectIndex(at: position, direction: .up)
         }
     }
     
-    public var positionUp: (row: Int, column: Int)? {
+    public var positionUp: MatrixIndex? {
         switch orientation {
         case .north:
-            if position.row == firstRow {
-                return nil
-            }
-            return (position.row - 1, position.column)
+            return matrix.selectIndex(at: position, direction: .up)
         case .south:
-            if position.row == lastRow {
-                return nil
-            }
-            return (position.row + 1, position.column)
+            return matrix.selectIndex(at: position, direction: .down)
         case .east:
-            if position.column == lastColumn {
-                return nil
-            }
-            return (position.row, position.column + 1)
+            return matrix.selectIndex(at: position, direction: .right)
         case .west:
-            if position.column == firstColumn {
-                return nil
-            }
-            return (position.row, position.column - 1)
+            return matrix.selectIndex(at: position, direction: .left)
         }
     }
     
-    public var positionDown: (row: Int, column: Int)? {
+    public var positionDown: MatrixIndex? {
         switch orientation {
         case .north:
-            if position.row == lastRow {
-                return nil
-            }
-            return (position.row + 1, position.column)
+            return matrix.selectIndex(at: position, direction: .down)
         case .south:
-            if position.row == firstRow {
-                return nil
-            }
-            return (position.row - 1, position.column)
+            return matrix.selectIndex(at: position, direction: .up)
         case .east:
-            if position.column == firstColumn {
-                return nil
-            }
-            return (position.row, position.column - 1)
+            return matrix.selectIndex(at: position, direction: .left)
         case .west:
-            if position.column == lastColumn {
-                return nil
-            }
-            return (position.row, position.column + 1)
+            return matrix.selectIndex(at: position, direction: .right)
         }
     }
     
-    public var rows: Int {
-        matrix.count
+    public var index: RawIndex? {
+        matrix.getRawIndex(at: position)
     }
     
-    public var columns: Int {
-        matrix.first?.count ?? 0
-    }
-    
-    public var firstColumn: Int {
-        0
-    }
-    
-    public var firstRow: Int {
-        0
-    }
-    
-    public var lastColumn: Int {
-        columns - 1
-    }
-    
-    public var lastRow: Int {
-        rows - 1
-    }
-    
-    public var index: Int {
-        getIndex(position: position)
-    }
-    
-    public var indexLeft: Int? {
+    public var indexLeft: RawIndex? {
         guard let positionLeft = positionLeft else { return nil }
-        return getIndex(position: positionLeft)
+        return matrix.getRawIndex(at: positionLeft)
     }
     
-    public var indexRight: Int? {
+    public var indexRight: RawIndex? {
         guard let positionRight = positionRight else { return nil }
-        return getIndex(position: positionRight)
+        return matrix.getRawIndex(at: positionRight)
     }
     
-    public var indexUp: Int? {
+    public var indexUp: RawIndex? {
         guard let positionUp = positionUp else { return nil }
-        return getIndex(position: positionUp)
+        return matrix.getRawIndex(at: positionUp)
     }
     
-    public var indexDown: Int? {
+    public var indexDown: RawIndex? {
         guard let positionDown = positionDown else { return nil }
-        return getIndex(position: positionDown)
+        return matrix.getRawIndex(at: positionDown)
     }
     
     public var orientation: FloodFillAgentOrientation = .south
     
-    public var matrix: [[Int]]
+    public var matrix: Matrix
     
-    public var walls: [(Int, Int)]
+    public var walls: [(indexA: RawIndex, indexB: RawIndex)]
     
     public var stack: [Int] = []
 
@@ -189,12 +117,12 @@ public struct FloodFillAgent {
     
     public var backStack: [Int] = []
     
-    public init(debug: Bool = true, name: String = "default", position: (row: Int, column: Int) = (0, 0), orientation: FloodFillAgentOrientation = .south, matrix: [[Int]] = [[-1, -1],[-1, -1]], walls: [(Int, Int)] = [], stack: [Int] = [], visited: [Int] = [], backStack: [Int] = []) {
+    public init(debug: Bool = true, name: String = "default", position: MatrixIndex = (0, 0), orientation: FloodFillAgentOrientation = .south, matrix: Matrix = Matrix.squared(2), walls: [(Int, Int)] = [], stack: [Int] = [], visited: [Int] = [], backStack: [Int] = []) {
         
         var initialMatrix = matrix
         
-        if initialMatrix[position.row][position.column] == -1 {
-            initialMatrix[position.row][position.column] = 0
+        if initialMatrix.getValue(at: position) == -1 {
+            initialMatrix.setValue(0, at: position)
         }
         
         self.debug = debug
@@ -229,42 +157,41 @@ public struct FloodFillAgent {
         return (true, nil)
     }
     
-    public func printMatrix(matrix: [[Int]], walls: [(Int, Int)], stack: [Int], visited: [Int], position: (row: Int, column: Int)) {
-        for i in 0..<matrix.count {
-            
-            let row = matrix[i]
+    public func printMatrix(matrix: Matrix, walls: [(Int, Int)], stack: [Int], visited: [Int], position: MatrixIndex) {
+        for rowIndex in 0..<matrix.rows {
             
             // TOP
-            for j in 0..<row.count {
-                let index = i * row.count + j
-                let indexUp = (i - 1) * row.count + j
-                let indexLeft = i * row.count + (j - 1)
-                let indexRight = i * row.count + (j + 1)
+            for columnIndex in 0..<matrix.columns {
+                guard let index = matrix.getRawIndex(at: (rowIndex, columnIndex))
+                else { continue }
+                let indexUp = matrix.selectRawIndex(from: index, direction: .up)
+                let indexLeft = matrix.selectRawIndex(from: index, direction: .left)
+                let indexRight = matrix.selectRawIndex(from: index, direction: .right)
                 
                 var left = false
                 
                 // LEFT
-                if let _ = walls.first(where: { $0 == index && $1 == indexLeft }) {
+                if walls.contains(where: { $0 == index && $1 == indexLeft }) {
                     left = true
                 }
-                if j == 0 {
+                if columnIndex == 0 {
                     left = true
                 }
                 
                 var right = false
                 
                 // RIGHT
-                if let _ = walls.first(where: { $0 == index && $1 == indexRight }) {
+                if walls.contains(where: { $0 == index && $1 == indexRight }) {
                     right = true
                 }
-                if j == row.count - 1 {
+                if columnIndex == matrix.lastColumn {
                     right = true
                 }
                 
-                if let _ = walls.first(where: { $0 == index && $1 == indexUp }) {
+                if walls.contains(where: { $0 == index && $1 == indexUp }) {
                     print("\(left ? "|" : "=")===\(right ? "|" : "=")", terminator: "")
                 } else {
-                    if indexUp < 0 {
+                    if rowIndex == 0 {
                         print("\(left ? "+" : "=")===\(right ? "+" : "=")", terminator: "")
                     } else {
                         print("\(left ? "|" : " ")   \(right ? "|" : " ")", terminator: "")
@@ -273,13 +200,16 @@ public struct FloodFillAgent {
             }
             print()
             
-            for j in 0..<row.count {
+            for columnIndex in 0..<matrix.columns {
                 
-                let value = row[j]
+                guard let index = matrix.getRawIndex(at: (rowIndex, columnIndex))
+                else { continue }
+                //let indexUp = matrix.selectRawIndex(from: index, direction: .up)
+                let indexLeft = matrix.selectRawIndex(from: index, direction: .left)
+                let indexRight = matrix.selectRawIndex(from: index, direction: .right)
                 
-                let index = i * row.count + j
-                let indexLeft = i * row.count + (j - 1)
-                let indexRight = i * row.count + (j + 1)
+                guard let value = matrix.getValue(from: index)
+                else { continue }
                 
                 var left = " "
                 
@@ -287,7 +217,7 @@ public struct FloodFillAgent {
                 if let _ = walls.first(where: { $0 == index && $1 == indexLeft }) {
                     left = "|"
                 }
-                if j == 0 {
+                if columnIndex == 0 {
                     left = "|"
                 }
                 
@@ -297,7 +227,7 @@ public struct FloodFillAgent {
                 if let _ = walls.first(where: { $0 == index && $1 == indexRight }) {
                     right = "|"
                 }
-                if j == row.count - 1 {
+                if columnIndex == matrix.lastColumn {
                     right = "|"
                 }
                 
@@ -314,7 +244,7 @@ public struct FloodFillAgent {
                     isVisited = true
                 }
                 
-                if position.row == i && position.column == j {
+                if position.row == rowIndex && position.column == columnIndex {
                     symbol = "<\(value < 0 ? "*" : "\(value)")>"
                 } else {
                     if isStacked {
@@ -338,80 +268,56 @@ public struct FloodFillAgent {
         }
         
         // DOWN
-        for j in 0..<matrix.first!.count {
-            print("\(j == 0 ? "+" : "=")===\(j == matrix.first!.count - 1 ? "+" : "=")", terminator: "")
+        for j in 0..<matrix.columns {
+            print("\(j == matrix.firstColumn ? "+" : "=")===\(j == matrix.lastColumn ? "+" : "=")", terminator: "")
         }
         print()
     }
     
-    public func getIndex(position: (row: Int, column: Int)) -> Int {
-        return position.row * columns + position.column
-    }
-    
-    public func getPosition(index: Int) -> (row: Int, column: Int) {
-        let row = Int(index / columns)
-        let column = index % columns
-        return (row, column)
-    }
-    
-    public func getMatrixValue(on position: (row: Int, column: Int)) -> Int {
-        return matrix[position.row][position.column]
-    }
-    
-    public func getMatrixValue(at index: Int) -> Int {
-        return getMatrixValue(on: getPosition(index: index))
-    }
-    
-    public mutating func setMatrixValue(_ value: Int, on position: (row: Int, column: Int)) {
-        matrix[position.row][position.column] = value
-    }
-    
-    public mutating func setMatrixValue(_ value: Int, at index: Int) {
-        setMatrixValue(value, on: getPosition(index: index))
-    }
-    
     public mutating func scan() {
-        log("Scanning... \(position) <<\(index)>> [\(orientation.rawValue)]")
+        log("Scanning... \(position) <<\(index ?? -1)>> [\(orientation.rawValue)]")
         
-        let value = getMatrixValue(on: position)
+        guard let value = matrix.getValue(at: position)
+        else { return }
         
         if let indexLeft = indexLeft {
-            if !walls.contains(where: { $0.0 == index && $0.1 == indexLeft }) && !visited.contains(where: {$0 == indexLeft}) {
+            if !walls.contains(where: { $0.indexA == index && $0.indexB == indexLeft }) && !visited.contains(where: {$0 == indexLeft}) {
                 stack.append(indexLeft)
-                setMatrixValue(value + 1, at: indexLeft)
+                matrix.setValue(value + 1, from: indexLeft)
             }
         }
         
         if let indexUp = indexUp {
-            if !walls.contains(where: { $0.0 == index && $0.1 == indexUp }) &&  !visited.contains(where: {$0 == indexUp}) {
+            if !walls.contains(where: { $0.indexA == index && $0.indexB == indexUp }) &&  !visited.contains(where: {$0 == indexUp}) {
                 stack.append(indexUp)
-                setMatrixValue(value + 1, at: indexUp)
+                matrix.setValue(value + 1, from: indexUp)
             }
         }
         
         if let indexRight = indexRight {
-            if !walls.contains(where: { $0.0 == index && $0.1 == indexRight }) &&  !visited.contains(where: {$0 == indexRight}) {
+            if !walls.contains(where: { $0.indexA == index && $0.indexB == indexRight }) &&  !visited.contains(where: {$0 == indexRight}) {
                 stack.append(indexRight)
-                setMatrixValue(value + 1, at: indexRight)
+                matrix.setValue(value + 1, from: indexRight)
             }
         }
         
         if let indexDown = indexDown {
-            if !walls.contains(where: { $0.0 == index && $0.1 == indexDown }) &&  !visited.contains(where: {$0 == indexDown}) {
+            if !walls.contains(where: { $0.indexA == index && $0.indexB == indexDown }) &&  !visited.contains(where: {$0 == indexDown}) {
                 stack.append(indexDown)
-                setMatrixValue(value + 1, at: indexDown)
+                matrix.setValue(value + 1, from: indexDown)
             }
         }
     }
     
     public func searchLowest() -> Int? {
-        log("Searching lowest: \(position) <<\(index)>> [\(orientation.rawValue)]")
+        log("Searching lowest: \(position) <<\(index ?? -1)>> [\(orientation.rawValue)]")
         
         var lowestIndex: Int?
         var lowestValue = Int.max
         
         for index in stack {
-            let value = getMatrixValue(at: index)
+            guard let value = matrix.getValue(from: index)
+            else { continue }
             if value < 0 { continue }
             if value < lowestValue {
                 lowestIndex = index
@@ -425,75 +331,79 @@ public struct FloodFillAgent {
     }
     
     public func seachLowestDirection() -> FloodFillAgentDirection? {
-        log("Searching lowest direction: \(position) <<\(index)>> [\(orientation.rawValue)]")
+        log("Searching lowest direction: \(position) <<\(index ?? -1)>> [\(orientation.rawValue)]")
         
         var direction: FloodFillAgentDirection = .down
         var directionValue: Int = Int.max
         
         if let indexLeft = indexLeft {
-            let value = getMatrixValue(at: indexLeft)
-            if !walls.contains(where: { $0.0 == index && $0.1 == indexLeft }) && value >= 0 && value < directionValue {
-                directionValue = value
-                switch orientation {
-                case .north:
-                    direction = .left
-                case .south:
-                    direction = .right
-                case .east:
-                    direction = .up
-                case .west:
-                    direction = .down
+            if let value = matrix.getValue(from: indexLeft) {
+                if !walls.contains(where: { $0.indexA == index && $0.indexB == indexLeft }) && value >= 0 && value < directionValue {
+                    directionValue = value
+                    switch orientation {
+                    case .north:
+                        direction = .left
+                    case .south:
+                        direction = .right
+                    case .east:
+                        direction = .up
+                    case .west:
+                        direction = .down
+                    }
                 }
             }
         }
         
         if let indexUp = indexUp {
-            let value = getMatrixValue(at: indexUp)
-            if !walls.contains(where: { $0.0 == index && $0.1 == indexUp }) && value >= 0 && value < directionValue {
-                directionValue = value
-                switch orientation {
-                case .north:
-                    direction = .up
-                case .south:
-                    direction = .down
-                case .east:
-                    direction = .right
-                case .west:
-                    direction = .left
+            if let value = matrix.getValue(from: indexUp) {
+                if !walls.contains(where: { $0.indexA == index && $0.indexB == indexUp }) && value >= 0 && value < directionValue {
+                    directionValue = value
+                    switch orientation {
+                    case .north:
+                        direction = .up
+                    case .south:
+                        direction = .down
+                    case .east:
+                        direction = .right
+                    case .west:
+                        direction = .left
+                    }
                 }
             }
         }
         
         if let indexRight = indexRight {
-            let value = getMatrixValue(at: indexRight)
-            if !walls.contains(where: { $0.0 == index && $0.1 == indexRight }) && value >= 0 && value < directionValue {
-                directionValue = value
-                switch orientation {
-                case .north:
-                    direction = .right
-                case .south:
-                    direction = .left
-                case .east:
-                    direction = .down
-                case .west:
-                    direction = .up
+            if let value = matrix.getValue(from: indexRight) {
+                if !walls.contains(where: { $0.indexA == index && $0.indexB == indexRight }) && value >= 0 && value < directionValue {
+                    directionValue = value
+                    switch orientation {
+                    case .north:
+                        direction = .right
+                    case .south:
+                        direction = .left
+                    case .east:
+                        direction = .down
+                    case .west:
+                        direction = .up
+                    }
                 }
             }
         }
         
         if let indexDown = indexDown {
-            let value = getMatrixValue(at: indexDown)
-            if !walls.contains(where: { $0.0 == index && $0.1 == indexDown }) && value >= 0 && value < directionValue {
-                directionValue = value
-                switch orientation {
-                case .north:
-                    direction = .down
-                case .south:
-                    direction = .up
-                case .east:
-                    direction = .left
-                case .west:
-                    direction = .right
+            if let value = matrix.getValue(from: indexDown) {
+                if !walls.contains(where: { $0.indexA == index && $0.indexB == indexDown }) && value >= 0 && value < directionValue {
+                    directionValue = value
+                    switch orientation {
+                    case .north:
+                        direction = .down
+                    case .south:
+                        direction = .up
+                    case .east:
+                        direction = .left
+                    case .west:
+                        direction = .right
+                    }
                 }
             }
         }
@@ -593,21 +503,23 @@ public struct FloodFillAgent {
     public mutating func goForward() {
         log("FORWARD")
         if let positionUp = positionUp {
-            log("Forwarding from \(position) <<\(index)>> to \(positionUp) <<\(getIndex(position: positionUp))>>")
+            log("Forwarding from \(position) <<\(index ?? -1)>> to \(positionUp) <<\(matrix.getRawIndex(at: positionUp) ?? -1)>>")
             position = positionUp
         } else {
-            log("ERROR MOVING FORWADING ON \(position) <<\(index)>> [\(orientation.rawValue)]")
+            log("ERROR MOVING FORWADING ON \(position) <<\(index ?? -1)>> [\(orientation.rawValue)]")
         }
     }
     
     public mutating func goBack(initial: Bool = false) {
-        log("Go back from \(position) <<\(index)>> [\(initial ? "initial" : "continue")]")
+        log("Go back from \(position) <<\(index ?? -1)>> [\(initial ? "initial" : "continue")]")
         
         if initial {
             backStack = []
         }
         
-        if index == 0 {
+        guard let index = index else { return }
+        
+        if index == matrix.firstRawIndex {
             log("Robot is in origin")
             return
         }
@@ -637,8 +549,8 @@ public struct FloodFillAgent {
         )
     }
     
-    public func pathTo(position otherPosition: (row: Int, column: Int)) -> [Int] {
-        log("Finding path between \(position) <<\(index)>> => \(otherPosition) <<\(getIndex(position: otherPosition))>>")
+    public func pathTo(position otherPosition: MatrixIndex) -> RawIndexPath {
+        log("Finding path between \(position) <<\(index ?? -1)>> => \(otherPosition) <<\(matrix.getRawIndex(at: otherPosition) ?? -1)>>")
         
         var robotClonned = clone()
         
@@ -656,8 +568,8 @@ public struct FloodFillAgent {
         return path
     }
     
-    public mutating func goTo(postion otherPosition: (row: Int, column: Int)) {
-        log("Go to: \(otherPosition) <<\(getIndex(position: otherPosition))>>")
+    public mutating func goTo(postion otherPosition: MatrixIndex) {
+        log("Go to: \(otherPosition) <<\(matrix.getRawIndex(at: otherPosition) ?? -1)>>")
         
         goBack(initial: true)
         
@@ -721,6 +633,8 @@ public struct FloodFillAgent {
     }
     
     public mutating func next() {
+        guard let index = index else { return }
+        
         log("Next")
         
         log("Index: \(index) Position: \(position)")
@@ -736,13 +650,15 @@ public struct FloodFillAgent {
         scan()
         
         if let lowestIndex = searchLowest() {
-            goTo(postion: getPosition(index: lowestIndex))
+            if let position = matrix.getIndex(from: lowestIndex) {
+                goTo(postion: position)
+            }
         }
         
         log("Stack/2: \(stack)")
     }
     
-    public mutating func goToGoal(at goalIndex: Int, withDescription description: Bool = true) -> [Int] {
+    public mutating func goToGoal(from goalIndex: Int, withDescription description: Bool = true) -> RawIndexPath {
         if description {
             describe()
         }
@@ -764,10 +680,12 @@ public struct FloodFillAgent {
         
         next()
         
-        return goToGoal(at: goalIndex, withDescription: description)
+        return goToGoal(from: goalIndex, withDescription: description)
     }
     
-    public mutating func goToGoal(on position: (row: Int, column: Int), withDescription description: Bool = true) -> [Int] {
-        return goToGoal(at: getIndex(position: position), withDescription: description)
+    public mutating func goToGoal(at position: MatrixIndex, withDescription description: Bool = true) -> RawIndexPath {
+        guard let index = matrix.getRawIndex(at: position) else { return [] }
+        
+        return goToGoal(from: index, withDescription: description)
     }
 }

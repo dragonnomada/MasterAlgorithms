@@ -19,14 +19,6 @@ final class FloodFillAgentTests: XCTestCase {
     }
 
     func testExample() throws {
-        let mat = [
-            [-1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1],
-        ]
-
         let walls = [
             (1, 6),
             (2, 7),
@@ -60,9 +52,9 @@ final class FloodFillAgentTests: XCTestCase {
             (23, 18),
         ]
          
-        var agent = FloodFillAgent(debug: false, matrix: mat, walls: walls)
+        var agent = FloodFillAgent(debug: false, matrix: Matrix.from(6, 5), walls: walls)
 
-        let path = agent.goToGoal(on: (row: 2, column: 2), withDescription: false)
+        let path = agent.goToGoal(at: (row: 2, column: 2), withDescription: false)
 
         print("PATH TO GOAL: \(path)")
         
