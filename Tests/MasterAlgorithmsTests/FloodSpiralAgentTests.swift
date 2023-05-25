@@ -47,7 +47,7 @@ final class FloodSpiralAgentTests: XCTestCase {
         
         agent.describe()
         
-        let tests = [
+        var tests = [
             (value: 4, direction: MatrixDirection.up),
             (value: 3, direction: MatrixDirection.right),
             (value: 12, direction: MatrixDirection.right),
@@ -61,35 +61,125 @@ final class FloodSpiralAgentTests: XCTestCase {
             (value: 2, direction: MatrixDirection.up),
         ]
         
-        for test in tests {
-            let (neighborValue, neighborDirection, neighborsTotal) = agent.searchMinimumNeighbor()
-            
-            if neighborsTotal > 1 {
-                if let index = agent.index {
-                    agent.stack.append(index)
+        let applyTests = {
+            for test in tests {
+                let (neighborValue, neighborDirection, neighborsTotal) = agent.searchMinimumNeighbor()
+                
+                if neighborsTotal > 1 {
+                    if let index = agent.index {
+                        agent.stack.append(index)
+                    }
                 }
+                
+                XCTAssert(neighborValue == test.value)
+                XCTAssert(neighborDirection == test.direction)
+                
+                guard let direction = neighborDirection
+                else {
+                    XCTFail("Invalid neighbor direction")
+                    return
+                }
+                
+                agent.turnAlign(direction: direction)
+                
+                agent.forward()
             }
-            
-            XCTAssert(neighborValue == test.value)
-            XCTAssert(neighborDirection == test.direction)
-            
-            guard let direction = neighborDirection
-            else {
-                XCTFail("Invalid neighbor direction")
-                return
-            }
-            
-            agent.turnAlign(direction: direction)
-
-            agent.forward()
         }
         
-        let (neighborValue, neighborDirection, neighborsTotal) = agent.searchMinimumNeighbor()
+        applyTests()
         
-        XCTAssert(neighborValue == nil)
-        XCTAssert(neighborDirection == nil)
-        XCTAssert(neighborsTotal == 0)
+        let checkEmptyNeighbors = {
+            let (neighborValue, neighborDirection, neighborsTotal) = agent.searchMinimumNeighbor()
+            
+            XCTAssert(neighborValue == nil)
+            XCTAssert(neighborDirection == nil)
+            XCTAssert(neighborsTotal == 0)
+            
+            agent.describe()
+        }
+        
+        checkEmptyNeighbors()
+        
+        var nextStackIndex = agent.stack[0]
+        
+        agent.goBackStack()
         
         agent.describe()
+        
+        XCTAssert(agent.index == nextStackIndex)
+        XCTAssert(!agent.stack.contains(where: {$0 == nextStackIndex}))
+        
+        tests = [
+            (value: 5, direction: MatrixDirection.left),
+        ]
+        
+        applyTests()
+        
+        agent.describe()
+        
+        checkEmptyNeighbors()
+        
+        nextStackIndex = agent.stack[0]
+        
+        agent.goBackStack()
+        
+        agent.describe()
+        
+        XCTAssert(agent.index == nextStackIndex)
+        XCTAssert(!agent.stack.contains(where: {$0 == nextStackIndex}))
+        
+        tests = [
+            (value: 13, direction: MatrixDirection.up),
+            (value: 14, direction: MatrixDirection.left),
+            (value: 15, direction: MatrixDirection.left),
+            (value: 16, direction: MatrixDirection.left),
+            (value: 17, direction: MatrixDirection.left),
+            (value: 18, direction: MatrixDirection.down),
+            (value: 19, direction: MatrixDirection.down),
+            (value: 6, direction: MatrixDirection.right),
+            (value: 7, direction: MatrixDirection.down),
+            (value: 20, direction: MatrixDirection.left),
+            (value: 21, direction: MatrixDirection.down),
+            (value: 22, direction: MatrixDirection.right),
+        ]
+        
+        applyTests()
+        
+        agent.describe()
+        
+        checkEmptyNeighbors()
+        
+        nextStackIndex = agent.stack[0]
+        
+        agent.goBackStack()
+        
+        agent.describe()
+        
+        XCTAssert(agent.index == nextStackIndex)
+        XCTAssert(!agent.stack.contains(where: {$0 == nextStackIndex}))
+        
+        tests = [
+            (value: 48, direction: MatrixDirection.down),
+            (value: 47, direction: MatrixDirection.left),
+            (value: 46, direction: MatrixDirection.left),
+            (value: 45, direction: MatrixDirection.left),
+            (value: 44, direction: MatrixDirection.left),
+        ]
+        
+        applyTests()
+        
+        agent.describe()
+        
+        checkEmptyNeighbors()
+        
+        nextStackIndex = agent.stack[0]
+        
+        agent.goBackStack()
+        
+        agent.describe()
+        
+        XCTAssert(agent.index == nextStackIndex)
+        XCTAssert(!agent.stack.contains(where: {$0 == nextStackIndex}))
+        
     }
 }

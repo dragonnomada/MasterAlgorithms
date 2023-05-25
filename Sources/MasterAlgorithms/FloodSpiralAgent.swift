@@ -32,16 +32,7 @@ public struct FloodSpiralAgent {
     public var direction: MatrixDirection = .right
     
     public var backDirection: MatrixDirection {
-        switch direction {
-        case .left:
-            return .right
-        case .right:
-            return .left
-        case .up:
-            return .down
-        case .down:
-            return .up
-        }
+        getOppositeDirection(direction: direction)
     }
     
     public var spiralValue: Int = 1
@@ -172,11 +163,13 @@ public struct FloodSpiralAgent {
         print("TURN-BACKWARD NEW DIRECTION: \(self.direction.rawValue)")
     }
     
-    mutating public func forward() {
+    mutating public func forward(writeMovement: Bool = true) {
         print("FORWARD FROM: \(position) \(direction.rawValue)")
         
         if let index = index {
-            movements.append((rawIndex: index, direction: direction))
+            if writeMovement {
+                movements.append((rawIndex: index, direction: direction))
+            }
         }
         
         if let newPosition = maze.matrix.selectIndex(at: position, direction: direction) {
@@ -243,6 +236,67 @@ public struct FloodSpiralAgent {
         }
         
         return (value: minNeighbor, direction: minDirection, total: totalNeighbors)
+    }
+    
+    public func getOppositeDirection(direction: MatrixDirection) -> MatrixDirection {
+        switch direction {
+        case .left:
+            return .right
+        case .right:
+            return .left
+        case .up:
+            return .down
+        case .down:
+            return .up
+        }
+    }
+    
+    mutating public func goBackStack() {
+        let targetIndex = stack.removeFirst()
+        
+        print("GO BACK IN STACK: POSITION \(position) DIRECTION \(direction) TARGET \(targetIndex)")
+        
+        guard let initialMovement = movements.last(where: { $0.rawIndex == targetIndex })
+        else {
+            print("GO BACK IN STACK: INVALID STACK")
+            return
+        }
+        guard let initialMovementIndex = movements.lastIndex(where: { $0.rawIndex == targetIndex })
+        else {
+            print("GO BACK IN STACK: INVALID STACK")
+            return
+        }
+        
+        var left: [(rawIndex: RawIndex, direction: MatrixDirection)] = []
+        var right: [(rawIndex: RawIndex, direction: MatrixDirection)] = []
+        
+        for i in 0..<movements.count {
+            if i < initialMovementIndex {
+                left.append(movements[i])
+            } else if i > initialMovementIndex {
+                right.append(movements[i])
+            }
+        }
+        
+        //movements = left.map({ ($0.rawIndex, $0.direction) })
+        
+        let backMovents = right.map({ (rawIndex: $0.rawIndex, direction: $0.direction) })
+        
+        print("GO BACK IN STACK: BACK MOVEMENTS \(backMovents.map({($0.rawIndex, $0.direction.rawValue)}))")
+        
+        for (_, direction) in backMovents.reversed() {
+            let backDirection = getOppositeDirection(direction: direction)
+            turnAlign(direction: backDirection)
+            forward(writeMovement: true)
+        }
+        
+        let backDirection = getOppositeDirection(direction: initialMovement.direction)
+        turnAlign(direction: backDirection)
+        forward(writeMovement: true)
+        
+        //describe()
+        
+        print("GO BACK IN STACK: POSITION \(position) DIRECTION \(direction.rawValue)")
     }
     
     public func describe() {
