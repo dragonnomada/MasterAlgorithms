@@ -7,7 +7,7 @@
 
 import Foundation
 
-public typealias Wall = (indexA: RawIndex, indexB: RawIndex)
+public typealias Wall = (aRawIndex: RawIndex, bRawIndex: RawIndex)
 
 public struct MatrixWall {
     
@@ -38,44 +38,44 @@ public struct MatrixWall {
                 
                 //print("[ \(left ? "L" : "-") \(up ? "U" : "-") \(right ? "R" : "-") \(down ? "D" : "-") ]")
                 
-                if let indexA = matrix.getRawIndex(at: (i, j)) {
+                if let aRawIndex = matrix.getRawIndex(at: (i, j)) {
                     if up {
-                        if let indexB = matrix.selectRawIndex(from: indexA, direction: .up) {
-                            if !walls.contains(where: { $0.indexA == indexA && $0.indexB == indexB }) {
-                                walls.append((indexA, indexB))
+                        if let bRawIndex = matrix.selectRawIndex(from: aRawIndex, direction: .up) {
+                            if !walls.contains(where: { $0.aRawIndex == aRawIndex && $0.bRawIndex == bRawIndex }) {
+                                walls.append((aRawIndex, bRawIndex))
                             }
-                            if !walls.contains(where: { $0.indexA == indexB && $0.indexB == indexA }) {
-                                walls.append((indexB, indexA))
+                            if !walls.contains(where: { $0.aRawIndex == bRawIndex && $0.bRawIndex == aRawIndex }) {
+                                walls.append((bRawIndex, aRawIndex))
                             }
                         }
                     }
                     if down {
-                        if let indexB = matrix.selectRawIndex(from: indexA, direction: .down) {
-                            if !walls.contains(where: { $0.indexA == indexA && $0.indexB == indexB }) {
-                                walls.append((indexA, indexB))
+                        if let bRawIndex = matrix.selectRawIndex(from: aRawIndex, direction: .down) {
+                            if !walls.contains(where: { $0.aRawIndex == aRawIndex && $0.bRawIndex == bRawIndex }) {
+                                walls.append((aRawIndex, bRawIndex))
                             }
-                            if !walls.contains(where: { $0.indexA == indexB && $0.indexB == indexA }) {
-                                walls.append((indexB, indexA))
+                            if !walls.contains(where: { $0.aRawIndex == bRawIndex && $0.bRawIndex == aRawIndex }) {
+                                walls.append((bRawIndex, aRawIndex))
                             }
                         }
                     }
                     if left {
-                        if let indexB = matrix.selectRawIndex(from: indexA, direction: .left) {
-                            if !walls.contains(where: { $0.indexA == indexA && $0.indexB == indexB }) {
-                                walls.append((indexA, indexB))
+                        if let bRawIndex = matrix.selectRawIndex(from: aRawIndex, direction: .left) {
+                            if !walls.contains(where: { $0.aRawIndex == aRawIndex && $0.bRawIndex == bRawIndex }) {
+                                walls.append((aRawIndex, bRawIndex))
                             }
-                            if !walls.contains(where: { $0.indexA == indexB && $0.indexB == indexA }) {
-                                walls.append((indexB, indexA))
+                            if !walls.contains(where: { $0.aRawIndex == bRawIndex && $0.bRawIndex == aRawIndex }) {
+                                walls.append((bRawIndex, aRawIndex))
                             }
                         }
                     }
                     if right {
-                        if let indexB = matrix.selectRawIndex(from: indexA, direction: .right) {
-                            if !walls.contains(where: { $0.indexA == indexA && $0.indexB == indexB }) {
-                                walls.append((indexA, indexB))
+                        if let bRawIndex = matrix.selectRawIndex(from: aRawIndex, direction: .right) {
+                            if !walls.contains(where: { $0.aRawIndex == aRawIndex && $0.bRawIndex == bRawIndex }) {
+                                walls.append((aRawIndex, bRawIndex))
                             }
-                            if !walls.contains(where: { $0.indexA == indexB && $0.indexB == indexA }) {
-                                walls.append((indexB, indexA))
+                            if !walls.contains(where: { $0.aRawIndex == bRawIndex && $0.bRawIndex == aRawIndex }) {
+                                walls.append((bRawIndex, aRawIndex))
                             }
                         }
                     }

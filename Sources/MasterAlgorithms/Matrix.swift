@@ -94,7 +94,7 @@ public struct Matrix {
             let row = data[i]
             for j in 0..<columns {
                 let value = row[j]
-                print(" \(value == defaultValue ? "*" : "\(value)") ", terminator: "")
+                print(" \(value == defaultValue ? "*" : "\(String(format: "%03d", value))") ", terminator: "")
             }
             print()
         }
@@ -122,7 +122,7 @@ public struct Matrix {
         return index.row * columns + index.column
     }
     
-    public func getIndex(from rawIndex: Int) -> MatrixIndex? {
+    public func getIndex(from rawIndex: RawIndex) -> MatrixIndex? {
         guard rawIndex >= 0 && rawIndex < size
         else { return nil }
         let row = Int(rawIndex / columns)
