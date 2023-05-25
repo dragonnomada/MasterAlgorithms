@@ -100,7 +100,7 @@ final class FloodSpiralAgentTests: XCTestCase {
         
         checkEmptyNeighbors()
         
-        var nextStackIndex = agent.stack[0]
+        var nextStackIndex = agent.stack.last ?? -1
         
         agent.goBackStack()
         
@@ -110,6 +110,80 @@ final class FloodSpiralAgentTests: XCTestCase {
         XCTAssert(!agent.stack.contains(where: {$0 == nextStackIndex}))
         
         tests = [
+            (value: 22, direction: MatrixDirection.left),
+            (value: 21, direction: MatrixDirection.left),
+            (value: 20, direction: MatrixDirection.up),
+            (value: 7, direction: MatrixDirection.right),
+            (value: 6, direction: MatrixDirection.up),
+            (value: 19, direction: MatrixDirection.left),
+            (value: 18, direction: MatrixDirection.up),
+            (value: 17, direction: MatrixDirection.up),
+            (value: 16, direction: MatrixDirection.right),
+            (value: 15, direction: MatrixDirection.right),
+            (value: 14, direction: MatrixDirection.right),
+            (value: 13, direction: MatrixDirection.right),
+        ]
+        
+        applyTests()
+        
+        agent.describe()
+        
+        checkEmptyNeighbors()
+        
+        nextStackIndex = agent.stack.last ?? -1
+        
+        agent.goBackStack()
+        
+        agent.describe()
+        
+        XCTAssert(agent.index == nextStackIndex)
+        XCTAssert(!agent.stack.contains(where: {$0 == nextStackIndex}))
+        
+        tests = [
+            (value: 48, direction: MatrixDirection.down),
+            (value: 47, direction: MatrixDirection.left),
+            (value: 46, direction: MatrixDirection.left),
+            (value: 45, direction: MatrixDirection.left),
+            (value: 44, direction: MatrixDirection.left),
+        ]
+        
+        applyTests()
+        
+        agent.describe()
+        
+        checkEmptyNeighbors()
+        
+        nextStackIndex = agent.stack.last ?? -1
+        
+        agent.goBackStack()
+        
+        agent.describe()
+        
+        XCTAssert(agent.index == nextStackIndex)
+        XCTAssert(!agent.stack.contains(where: {$0 == nextStackIndex}))
+        
+        checkEmptyNeighbors()
+        
+        nextStackIndex = agent.stack.last ?? -1
+        
+        agent.goBackStack()
+        
+        agent.describe()
+        
+        XCTAssert(agent.index == nextStackIndex)
+        XCTAssert(!agent.stack.contains(where: {$0 == nextStackIndex}))
+        
+        tests = [
+            (value: 5, direction: MatrixDirection.left),
+        ]
+        
+        applyTests()
+        
+        agent.describe()
+        
+        checkEmptyNeighbors()
+        
+        /*tests = [
             (value: 5, direction: MatrixDirection.left),
         ]
         
@@ -180,6 +254,6 @@ final class FloodSpiralAgentTests: XCTestCase {
         
         XCTAssert(agent.index == nextStackIndex)
         XCTAssert(!agent.stack.contains(where: {$0 == nextStackIndex}))
-        
+        */
     }
 }

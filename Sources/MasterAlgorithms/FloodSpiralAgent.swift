@@ -252,7 +252,7 @@ public struct FloodSpiralAgent {
     }
     
     mutating public func goBackStack() {
-        let targetIndex = stack.removeFirst()
+        let targetIndex = stack.removeLast()
         
         print("GO BACK IN STACK: POSITION \(position) DIRECTION \(direction) TARGET \(targetIndex)")
         
@@ -278,7 +278,7 @@ public struct FloodSpiralAgent {
             }
         }
         
-        //movements = left.map({ ($0.rawIndex, $0.direction) })
+        movements = left.map({ ($0.rawIndex, $0.direction) })
         
         let backMovents = right.map({ (rawIndex: $0.rawIndex, direction: $0.direction) })
         
@@ -287,12 +287,14 @@ public struct FloodSpiralAgent {
         for (_, direction) in backMovents.reversed() {
             let backDirection = getOppositeDirection(direction: direction)
             turnAlign(direction: backDirection)
-            forward(writeMovement: true)
+            forward(writeMovement: false)
         }
         
         let backDirection = getOppositeDirection(direction: initialMovement.direction)
         turnAlign(direction: backDirection)
-        forward(writeMovement: true)
+        forward(writeMovement: false)
+        
+        //movements.append((rawIndex: initialMovement.rawIndex, direction: getOppositeDirection(direction: initialMovement.direction)))
         
         //describe()
         
