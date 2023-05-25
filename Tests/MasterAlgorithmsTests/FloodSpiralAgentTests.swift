@@ -10,6 +10,35 @@ import XCTest
 
 final class FloodSpiralAgentTests: XCTestCase {
     
+    let mazes = [
+        [
+            [1100, 0101, 0101, 0101, 0110],
+            [1010, 1101, 0100, 0101, 0010],
+            [1001, 0110, 1011, 1110, 1010],
+            [1000, 0011, 1100, 0011, 1010],
+            [1001, 0101, 0001, 0101, 1010],
+            [1101, 0101, 0101, 0101, 0011]
+        ],
+        [
+            [1100, 0101, 0100, 0100, 0101, 0111, 1100, 0100, 0100, 0101, 0101, 0101, 0101, 0101, 0101, 0110],
+            [1010, 1000, 0011, 1000, 0101, 0100, 0010, 1011, 1000, 0101, 0101, 0101, 0101, 0101, 0110, 1010],
+            [1010, 1001, 0110, 1010, 1100, 0010, 1001, 0101, 0011, 1100, 0101, 0101, 0101, 0101, 0011, 1010],
+            [1010, 1100, 0011, 1001, 0010, 1011, 1100, 0101, 0101, 0001, 0101, 0101, 0101, 0101, 0110, 1010],
+            [1010, 1010, 1100, 0110, 1001, 0111, 1000, 0101, 0101, 0101, 0101, 0101, 0101, 0101, 0011, 1010],
+            [1010, 1000, 0010, 1001, 0100, 0101, 0011, 1100, 0101, 0101, 0100, 0101, 0101, 0101, 0101, 0011],
+            [1001, 0010, 1001, 0111, 1001, 0100, 0110, 1010, 1101, 0110, 1000, 0110, 1100, 0110, 1100, 0110],
+            [1100, 0001, 0101, 0101, 0101, 0011, 1010, 1000, 0110, 1010, 1010, 1001, 0011, 1001, 0010, 1010],
+            [1010, 1100, 0101, 0101, 0101, 0110, 1011, 1001, 0011, 1010, 1001, 0101, 0101, 0110, 1010, 1010],
+            [1010, 1010, 1100, 0101, 0101, 0011, 1100, 0101, 0101, 0001, 0101, 0100, 0101, 0011, 1010, 1010],
+            [1001, 0010, 1010, 1100, 0101, 0101, 0001, 0101, 0101, 0101, 0110, 1001, 0101, 0101, 0010, 1010],
+            [1100, 0010, 1010, 1010, 1100, 0101, 0101, 0101, 0101, 0101, 0001, 0101, 0101, 0101, 0010, 1010],
+            [1010, 1010, 1010, 1010, 1001, 0101, 0101, 0101, 0101, 0101, 0110, 1100, 0101, 0101, 0001, 0010],
+            [1010, 1010, 1010, 1000, 0101, 0101, 0101, 0101, 0101, 0110, 1010, 1001, 0101, 0101, 0110, 1010],
+            [1010, 1010, 1001, 0011, 1100, 0100, 0101, 0101, 0101, 0011, 1010, 1100, 0101, 0101, 0011, 1010],
+            [1011, 1001, 0101, 0101, 0011, 1001, 0101, 0101, 0101, 0101, 0001, 0001, 0101, 0101, 0101, 0011]
+        ]
+    ]
+    
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
@@ -19,14 +48,7 @@ final class FloodSpiralAgentTests: XCTestCase {
     }
     
     func testExample() throws {
-        let maze = [
-            [1100, 0101, 0101, 0101, 0110],
-            [1010, 1101, 0100, 0101, 0010],
-            [1001, 0110, 1011, 1110, 1010],
-            [1000, 0011, 1100, 0011, 1010],
-            [1001, 0101, 0001, 0101, 1010],
-            [1101, 0101, 0101, 0101, 0011]
-        ]
+        let maze = mazes[0]
         
         let agent = FloodSpiralAgent(maze: maze, position: (row: 2, column: 2))
         
@@ -34,14 +56,7 @@ final class FloodSpiralAgentTests: XCTestCase {
     }
     
     func testSearchMinimumNeighbor() throws {
-        let maze = [
-            [1100, 0101, 0101, 0101, 0110],
-            [1010, 1101, 0100, 0101, 0010],
-            [1001, 0110, 1011, 1110, 0010],
-            [1000, 0011, 1100, 0011, 0010],
-            [1001, 0101, 0001, 0101, 0010],
-            [1101, 0101, 0101, 0101, 0011]
-        ]
+        let maze = mazes[0]
         
         var agent = FloodSpiralAgent(maze: maze, position: (row: 2, column: 2))
         
@@ -182,78 +197,89 @@ final class FloodSpiralAgentTests: XCTestCase {
         agent.describe()
         
         checkEmptyNeighbors()
+    }
+    
+    func testExplore() throws {
+        let maze = mazes[0]
         
-        /*tests = [
-            (value: 5, direction: MatrixDirection.left),
-        ]
-        
-        applyTests()
-        
-        agent.describe()
-        
-        checkEmptyNeighbors()
-        
-        nextStackIndex = agent.stack[0]
-        
-        agent.goBackStack()
+        var agent = FloodSpiralAgent(maze: maze, position: (row: 2, column: 2))
         
         agent.describe()
         
-        XCTAssert(agent.index == nextStackIndex)
-        XCTAssert(!agent.stack.contains(where: {$0 == nextStackIndex}))
+        agent.explore()
         
-        tests = [
-            (value: 13, direction: MatrixDirection.up),
-            (value: 14, direction: MatrixDirection.left),
-            (value: 15, direction: MatrixDirection.left),
-            (value: 16, direction: MatrixDirection.left),
-            (value: 17, direction: MatrixDirection.left),
-            (value: 18, direction: MatrixDirection.down),
-            (value: 19, direction: MatrixDirection.down),
-            (value: 6, direction: MatrixDirection.right),
-            (value: 7, direction: MatrixDirection.down),
-            (value: 20, direction: MatrixDirection.left),
-            (value: 21, direction: MatrixDirection.down),
-            (value: 22, direction: MatrixDirection.right),
-        ]
+        agent.describe()
+    }
+    
+    func testExplore2() throws {
+        let maze = mazes[0]
         
-        applyTests()
+        var agent = FloodSpiralAgent(maze: maze, position: (row: 0, column: 0))
         
         agent.describe()
         
-        checkEmptyNeighbors()
+        agent.explore()
         
-        nextStackIndex = agent.stack[0]
+        agent.describe()
+    }
+    
+    func testFindGoal() throws {
+        let maze = mazes[0]
         
-        agent.goBackStack()
+        var agent = FloodSpiralAgent(maze: maze, position: (row: 0, column: 0))
         
         agent.describe()
         
-        XCTAssert(agent.index == nextStackIndex)
-        XCTAssert(!agent.stack.contains(where: {$0 == nextStackIndex}))
+        agent.findGoal(goal: (2, 2))
         
-        tests = [
-            (value: 48, direction: MatrixDirection.down),
-            (value: 47, direction: MatrixDirection.left),
-            (value: 46, direction: MatrixDirection.left),
-            (value: 45, direction: MatrixDirection.left),
-            (value: 44, direction: MatrixDirection.left),
-        ]
+        agent.describe()
+    }
+    
+    func testFindGoal2() throws {
+        let maze = mazes[1]
         
-        applyTests()
+        var agent = FloodSpiralAgent(maze: maze, position: (row: 0, column: 0))
         
         agent.describe()
         
-        checkEmptyNeighbors()
+        agent.findGoal(goal: (8, 8))
         
-        nextStackIndex = agent.stack[0]
+        agent.describe()
+    }
+    
+    func testFindGoal3() throws {
+        let maze = mazes[1]
         
-        agent.goBackStack()
+        var agent = FloodSpiralAgent(maze: maze, position: (row: 15, column: 0))
         
         agent.describe()
         
-        XCTAssert(agent.index == nextStackIndex)
-        XCTAssert(!agent.stack.contains(where: {$0 == nextStackIndex}))
-        */
+        agent.findGoal(goal: (8, 8))
+        
+        agent.describe()
+    }
+    
+    func testFindGoal4() throws {
+        let maze = mazes[1]
+        
+        var agent = FloodSpiralAgent(maze: maze, position: (row: 0, column: 0))
+        
+        agent.describe()
+        
+        agent.findGoal(goal: (15, 15))
+        
+        agent.describe()
+    }
+    
+    func testFindGoal5() throws {
+        let maze = mazes[1]
+        
+        var agent = FloodSpiralAgent(maze: maze, position: (row: 15, column: 15))
+        
+        agent.describe()
+        
+        agent.findGoal(goal: (0, 0))
+        
+        agent.describe()
     }
 }

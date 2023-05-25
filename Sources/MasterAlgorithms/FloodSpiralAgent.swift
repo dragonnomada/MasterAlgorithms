@@ -301,6 +301,60 @@ public struct FloodSpiralAgent {
         print("GO BACK IN STACK: POSITION \(position) DIRECTION \(direction.rawValue)")
     }
     
+    mutating public func explore(auto: Bool = true) {
+        let (_, neighborDirection, neighborsTotal) = searchMinimumNeighbor()
+        
+        if neighborsTotal == 0 {
+            if stack.isEmpty {
+                return
+            }
+            
+            goBackStack()
+            if auto {
+                explore()
+            }
+            return
+        }
+        
+        if neighborsTotal > 1 {
+            if let index = index {
+                stack.append(index)
+            }
+        }
+        
+        guard let direction = neighborDirection
+        else {
+            return
+        }
+        
+        turnAlign(direction: direction)
+        
+        forward()
+        
+        if auto {
+            explore()
+        }
+    }
+    
+    mutating public func findGoal(goal goalIndex: MatrixIndex) {
+        if let goalRawIndex = maze.matrix.getRawIndex(at: goalIndex), let rawIndex = index {
+            print("GOAL INDEX: \(goalRawIndex) [\(rawIndex)]")
+            if rawIndex == goalRawIndex {
+                print("GOAL!!!")
+                return
+            }
+        }
+        
+        explore(auto: false)
+        
+        if stack.isEmpty && searchMinimumNeighbor().total == 0 {
+            print("GOAL NOT REACHEABLE <!><!><!>")
+            return
+        }
+        
+        findGoal(goal: goalIndex)
+    }
+    
     public func describe() {
         self.maze.describe(position: position, visited: visited, stack: stack)
         print("MOVEMENTS: \(movements.map({ ($0.rawIndex, $0.direction.rawValue) }))")
