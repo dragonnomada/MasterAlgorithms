@@ -7,20 +7,6 @@
 
 import Foundation
 
-public enum FloodFillAgentOrientation: String {
-    case north = "NORTH"
-    case south = "SOUTH"
-    case east = "EAST"
-    case west = "WEST"
-}
-
-public enum FloodFillAgentDirection: String {
-    case left = "LEFT"
-    case right = "RIGHT"
-    case up = "UP"
-    case down = "DOWN"
-}
-
 public struct FloodFillAgent {
     
     var debug: Bool = true
@@ -107,7 +93,7 @@ public struct FloodFillAgent {
         return matrix.getRawIndex(at: positionDown)
     }
     
-    public var orientation: FloodFillAgentOrientation = .south
+    public var orientation: AgentOrientation = .south
     
     public var matrix: Matrix
     
@@ -121,7 +107,7 @@ public struct FloodFillAgent {
     
     public var metrics: [String:Int] = [:]
     
-    public init(debug: Bool = true, name: String = "default", position: MatrixIndex = (0, 0), orientation: FloodFillAgentOrientation = .south, matrix: Matrix = Matrix.squared(2), walls: [(Int, Int)] = [], stack: [Int] = [], visited: [Int] = [], backStack: [Int] = [], metrics: [String:Int] = [:]) {
+    public init(debug: Bool = true, name: String = "default", position: MatrixIndex = (0, 0), orientation: AgentOrientation = .south, matrix: Matrix = Matrix.squared(2), walls: [(Int, Int)] = [], stack: [Int] = [], visited: [Int] = [], backStack: [Int] = [], metrics: [String:Int] = [:]) {
         
         var initialMatrix = matrix
         
@@ -343,10 +329,10 @@ public struct FloodFillAgent {
         return lowestIndex
     }
     
-    public func seachLowestDirection() -> FloodFillAgentDirection? {
+    public func seachLowestDirection() -> AgentDirection? {
         log("Searching lowest direction: \(position) <<\(index ?? -1)>> [\(orientation.rawValue)]")
         
-        var direction: FloodFillAgentDirection = .down
+        var direction: AgentDirection = .down
         var directionValue: Int = Int.max
         
         if let indexLeft = indexLeft {
@@ -468,7 +454,7 @@ public struct FloodFillAgent {
         }
     }
     
-    public mutating func turn(direction: FloodFillAgentDirection) {
+    public mutating func turn(direction: AgentDirection) {
         log("Turning until direction: \(direction.rawValue) [\(orientation.rawValue)]")
         
         switch direction {

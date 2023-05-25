@@ -12,7 +12,7 @@ public typealias RawIndexRelation = (aRawIndex: RawIndex, bRawIndex: RawIndex)
 
 public struct MatrixSpiral {
     
-    let matrix: Matrix
+    public let matrix: Matrix
     
     public init(dimension n: Int) {
         let size = n % 2 == 1 ? n : n + 1
@@ -78,11 +78,11 @@ public struct MatrixSpiral {
         self.matrix = matrix
     }
     
-    func describe() {
+    public func describe() {
         matrix.describe()
     }
     
-    func searchRawIndex(value: Int) -> RawIndex? {
+    public func searchRawIndex(value: Int) -> RawIndex? {
         for index in 0..<matrix.size {
             if matrix.getValue(from: index) == value {
                 return index
@@ -91,13 +91,13 @@ public struct MatrixSpiral {
         return nil
     }
     
-    func searchIndex(value: Int) -> MatrixIndex? {
+    public func searchIndex(value: Int) -> MatrixIndex? {
         guard let index = searchRawIndex(value: value)
         else { return nil }
         return matrix.getIndex(from: index)
     }
     
-    func neighbors(at index: MatrixIndex) -> [MatrixNeighbor] {
+    public func neighbors(at index: MatrixIndex) -> [MatrixNeighbor] {
         var neighbors: [MatrixNeighbor] = []
         
         let directions: [MatrixDirection] = [.right, .up, .left, .down]
@@ -115,19 +115,19 @@ public struct MatrixSpiral {
         return neighbors
     }
     
-    func neighbors(from rawIndex: RawIndex) -> [MatrixNeighbor] {
+    public func neighbors(from rawIndex: RawIndex) -> [MatrixNeighbor] {
         guard let index = matrix.getIndex(from: rawIndex)
         else { return [] }
         return neighbors(at: index)
     }
     
-    func neighbors(of value: Int) -> [MatrixNeighbor] {
+    public func neighbors(of value: Int) -> [MatrixNeighbor] {
         guard let index = searchIndex(value: value)
         else { return [] }
         return neighbors(at: index)
     }
     
-    func relations() -> [(Int, Int)] {
+    public func relations() -> [(Int, Int)] {
         var relations: [(Int, Int)] = []
         
         for value in 1...matrix.size {
@@ -147,7 +147,7 @@ public struct MatrixSpiral {
         return relations
     }
     
-    func walls() -> [Wall] {
+    public func walls() -> [Wall] {
         var walls: [Wall] = []
         
         for (aValue, bValue) in relations() {
