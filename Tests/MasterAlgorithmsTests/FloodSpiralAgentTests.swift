@@ -16,7 +16,7 @@ final class FloodSpiralAgentTests: XCTestCase {
             [1010, 1101, 0100, 0101, 0010],
             [1001, 0110, 1011, 1110, 1010],
             [1000, 0011, 1100, 0011, 1010],
-            [1001, 0101, 0001, 0101, 1010],
+            [1001, 0101, 0001, 0101, 0010],
             [1101, 0101, 0101, 0101, 0011]
         ],
         [
@@ -262,11 +262,11 @@ final class FloodSpiralAgentTests: XCTestCase {
     func testFindGoal4() throws {
         let maze = mazes[1]
         
-        var agent = FloodSpiralAgent(maze: maze, position: (row: 0, column: 0))
+        var agent = FloodSpiralAgent(maze: maze, position: (row: 4, column: 4))
         
         agent.describe()
         
-        agent.findGoal(goal: (15, 15))
+        agent.findGoal(goal: (8, 8))
         
         agent.describe()
     }
@@ -274,11 +274,23 @@ final class FloodSpiralAgentTests: XCTestCase {
     func testFindGoal5() throws {
         let maze = mazes[1]
         
+        var agent = FloodSpiralAgent(maze: maze, position: (row: 15, column: 0))
+        
+        agent.describe()
+        
+        agent.findGoal(goal: (8, 8))
+        
+        agent.describe()
+    }
+    
+    func testExplore3() throws {
+        let maze = mazes[1]
+        
         var agent = FloodSpiralAgent(maze: maze, position: (row: 15, column: 15))
         
         agent.describe()
         
-        agent.findGoal(goal: (0, 0))
+        agent.explore()
         
         agent.describe()
     }

@@ -252,6 +252,10 @@ public struct FloodSpiralAgent {
     }
     
     mutating public func goBackStack() {
+        if stack.isEmpty {
+            return
+        }
+        
         let targetIndex = stack.removeLast()
         
         print("GO BACK IN STACK: POSITION \(position) DIRECTION \(direction) TARGET \(targetIndex)")
