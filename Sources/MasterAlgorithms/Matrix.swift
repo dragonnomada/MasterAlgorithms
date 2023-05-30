@@ -17,6 +17,12 @@ public enum MatrixDirection: String {
     case right = "RIGHT"
     case up = "UP"
     case down = "DOWN"
+    
+    public static func random() -> MatrixDirection {
+        var directions: [MatrixDirection] = [.right, .up, .left, .down]
+        directions.sort(by: { _, _ in Bool.random() })
+        return directions.first!
+    }
 }
 
 public struct Matrix {
@@ -98,6 +104,12 @@ public struct Matrix {
             }
             print()
         }
+    }
+    
+    public func randomPosition() -> MatrixIndex {
+        let row = Int.random(in: 0..<rows)
+        let column = Int.random(in: 0..<columns)
+        return (row: row, column: column)
     }
     
     public func row(_ rowIndex: Int) -> MatrixRow {

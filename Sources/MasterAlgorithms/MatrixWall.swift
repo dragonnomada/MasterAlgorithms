@@ -11,6 +11,11 @@ public typealias Wall = (aRawIndex: RawIndex, bRawIndex: RawIndex)
 
 public struct MatrixWall {
     
+    public static func randomPosition(_ matrixEncondingWalls: [[Int]]) -> MatrixIndex {
+        let matrix = MatrixWall.build(matrixEncondingWalls).matrix
+        return matrix.randomPosition()
+    }
+    
     public var matrix: Matrix
     public let walls: [Wall]
     

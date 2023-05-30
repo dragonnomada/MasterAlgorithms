@@ -11,7 +11,22 @@ public enum FloodSpiralAgentError: Error {
     case indexNotExists
 }
 
+public enum FloodSpiralOperation: String {
+    case idle = "IDLE"
+    case forward = "FORWARD"
+    case turnLeft = "TURN_LEFT"
+    case turnRight = "TURN_RIGHT"
+    case scanWall = "SCAN_WALL"
+    case scanEmpty = "SCAN_EMPTY"
+}
+
+public typealias FloodSpiralOperationRecord = (operation: FloodSpiralOperation, direction: MatrixDirection, spiralValue: Int)
+
 public struct FloodSpiralAgent {
+    
+    public var debug = false
+    
+    public var operations: [FloodSpiralOperationRecord] = []
     
     public let matrix: MatrixSpiral
     
@@ -54,8 +69,12 @@ public struct FloodSpiralAgent {
         }
     }
     
+    public mutating func resetOperations() {
+        self.operations = [(operation: .idle, direction: direction, spiralValue: spiralValue)]
+    }
+    
     public func scanWall() throws -> Bool {
-        print("SCAN WALL: \(position) \(direction.rawValue)")
+        log("SCAN WALL: \(position) \(direction.rawValue)")
         
         guard let index = index
         else { throw FloodSpiralAgentError.indexNotExists }
@@ -65,13 +84,13 @@ public struct FloodSpiralAgent {
         
         let isWall = maze.walls.contains(where: { $0.aRawIndex == index && $0.bRawIndex == nextIndex })
         
-        print("SCAN WALL RESULT: \(position) \(direction.rawValue) \(isWall ? "WALL" : "EMPTY")")
+        log("SCAN WALL RESULT: \(position) \(direction.rawValue) \(isWall ? "WALL" : "EMPTY")")
         
         return isWall
     }
     
-    mutating func turnLeft() {
-        print("TURN-LEFT FROM DIRECTION: \(direction.rawValue)")
+    public mutating func turnLeft() {
+        log("TURN-LEFT FROM DIRECTION: \(direction.rawValue)")
         switch direction {
         case .left:
             direction = .down
@@ -82,11 +101,13 @@ public struct FloodSpiralAgent {
         case .down:
             direction = .right
         }
-        print("TURN-LEFT NEW DIRECTION: \(direction.rawValue)")
+        log("TURN-LEFT NEW DIRECTION: \(direction.rawValue)")
+        
+        operations.append((operation: .turnLeft, direction: direction, spiralValue: spiralValue))
     }
     
-    mutating func turnRight() {
-        print("TURN-RIGHT FROM DIRECTION: \(direction.rawValue)")
+    public mutating func turnRight() {
+        log("TURN-RIGHT FROM DIRECTION: \(direction.rawValue)")
         switch direction {
         case .left:
             direction = .up
@@ -97,17 +118,19 @@ public struct FloodSpiralAgent {
         case .down:
             direction = .left
         }
-        print("TURN-RIGHT NEW DIRECTION: \(direction.rawValue)")
+        log("TURN-RIGHT NEW DIRECTION: \(direction.rawValue)")
+        
+        operations.append((operation: .turnRight, direction: direction, spiralValue: spiralValue))
     }
     
-    mutating public func turnAlign(direction: MatrixDirection) {
-        print("TURN-ALIGN FROM DIRECTION: \(self.direction.rawValue) TO \(direction.rawValue)")
+    public mutating func turnAlign(direction: MatrixDirection) {
+        log("TURN-ALIGN FROM DIRECTION: \(self.direction.rawValue) TO \(direction.rawValue)")
         
         switch self.direction {
         case .left:
             switch direction {
             case .left:
-                print("Not necessary to turn align")
+                log("Not necessary to turn align")
             case .right:
                 turnRight()
                 turnRight()
@@ -122,7 +145,7 @@ public struct FloodSpiralAgent {
                 turnLeft()
                 turnLeft()
             case .right:
-                print("Not necessary to turn align")
+                log("Not necessary to turn align")
             case .up:
                 turnLeft()
             case .down:
@@ -135,7 +158,7 @@ public struct FloodSpiralAgent {
             case .right:
                 turnRight()
             case .up:
-                print("Not necessary to turn align")
+                log("Not necessary to turn align")
             case .down:
                 turnLeft()
                 turnLeft()
@@ -150,21 +173,21 @@ public struct FloodSpiralAgent {
                 turnRight()
                 turnRight()
             case .down:
-                print("Not necessary to turn align")
+                log("Not necessary to turn align")
             }
         }
         
-        print("TURN-ALIGN NEW DIRECTION: \(self.direction.rawValue)")
+        log("TURN-ALIGN NEW DIRECTION: \(self.direction.rawValue)")
     }
     
-    mutating public func turnBackward() {
-        print("TURN-BACKWARD FROM DIRECTION: \(self.direction.rawValue)")
+    public mutating func turnBackward() {
+        log("TURN-BACKWARD FROM DIRECTION: \(self.direction.rawValue)")
         turnAlign(direction: backDirection)
-        print("TURN-BACKWARD NEW DIRECTION: \(self.direction.rawValue)")
+        log("TURN-BACKWARD NEW DIRECTION: \(self.direction.rawValue)")
     }
     
-    mutating public func forward(writeMovement: Bool = true) {
-        print("FORWARD FROM: \(position) \(direction.rawValue)")
+    public mutating func forward(writeMovement: Bool = true) {
+        log("FORWARD FROM: \(position) \(direction.rawValue)")
         
         if let index = index {
             if writeMovement {
@@ -191,15 +214,19 @@ public struct FloodSpiralAgent {
         maze.matrix.setValue(count, at: position)
         count += 1
         
-        print("FORWARD SUCCESS: \(position) \(direction.rawValue)")
+        log("FORWARD SUCCESS: \(position) \(direction.rawValue)")
+        
+        operations.append((operation: .forward, direction: direction, spiralValue: spiralValue))
     }
     
-    mutating public func searchMinimumNeighbor() -> (value: Int?, direction: MatrixDirection?, total: Int) {
-        print("SEARCHING MINIMUM NEIGHBOR: \(position) \(direction.rawValue)")
+    public mutating func searchMinimumNeighbor() -> (value: Int?, direction: MatrixDirection?, total: Int) {
+        //let originalDirection = direction
+        
+        log("SEARCHING MINIMUM NEIGHBOR: \(position) \(direction.rawValue)")
         guard let index = matrix.searchRawIndex(value: spiralValue)
         else { return (value: nil, direction: nil, total: 0) }
         
-        print("SEARCHING MINIMUM NEIGHBOR: VALUE \(spiralValue) INTERNAL INDEX: \(index)")
+        log("SEARCHING MINIMUM NEIGHBOR: VALUE \(spiralValue) INTERNAL INDEX: \(index)")
         
         var minNeighbor: Int? = nil
         var minDirection: MatrixDirection? = nil
@@ -210,7 +237,14 @@ public struct FloodSpiralAgent {
             turnAlign(direction: neighbor.direction)
             
             if let isWall = try? scanWall() {
-                if isWall { continue }
+                if isWall {
+                    operations.append((operation: .scanWall, direction: direction, spiralValue: spiralValue))
+                    continue
+                } else {
+                    operations.append((operation: .scanEmpty, direction: direction, spiralValue: spiralValue))
+                }
+            } else {
+                operations.append((operation: .scanWall, direction: direction, spiralValue: spiralValue))
             }
             
             if let nextRawIndex = maze.matrix.selectRawIndex(at: position, direction: neighbor.direction) {
@@ -230,10 +264,13 @@ public struct FloodSpiralAgent {
         }
         
         if let minNeighbor = minNeighbor, let minDirection = minDirection {
-            print("SEARCHING MINIMUM NEIGHBOR: \(position) \(direction.rawValue) IS: \(minNeighbor) [\(minDirection.rawValue)]")
+            log("SEARCHING MINIMUM NEIGHBOR: \(position) \(direction.rawValue) IS: \(minNeighbor) [\(minDirection.rawValue)]")
         } else {
-            print("SEARCHING MINIMUM NEIGHBOR: \(position) \(direction.rawValue) NOT FOUND")
+            log("SEARCHING MINIMUM NEIGHBOR: \(position) \(direction.rawValue) NOT FOUND")
         }
+        
+        turnLeft()
+        //turnAlign(direction: originalDirection)
         
         return (value: minNeighbor, direction: minDirection, total: totalNeighbors)
     }
@@ -251,23 +288,23 @@ public struct FloodSpiralAgent {
         }
     }
     
-    mutating public func goBackStack() {
+    public mutating func goBackStack() {
         if stack.isEmpty {
             return
         }
         
         let targetIndex = stack.removeLast()
         
-        print("GO BACK IN STACK: POSITION \(position) DIRECTION \(direction) TARGET \(targetIndex)")
+        log("GO BACK IN STACK: POSITION \(position) DIRECTION \(direction) TARGET \(targetIndex)")
         
         guard let initialMovement = movements.last(where: { $0.rawIndex == targetIndex })
         else {
-            print("GO BACK IN STACK: INVALID STACK")
+            log("GO BACK IN STACK: INVALID STACK")
             return
         }
         guard let initialMovementIndex = movements.lastIndex(where: { $0.rawIndex == targetIndex })
         else {
-            print("GO BACK IN STACK: INVALID STACK")
+            log("GO BACK IN STACK: INVALID STACK")
             return
         }
         
@@ -286,7 +323,7 @@ public struct FloodSpiralAgent {
         
         let backMovents = right.map({ (rawIndex: $0.rawIndex, direction: $0.direction) })
         
-        print("GO BACK IN STACK: BACK MOVEMENTS \(backMovents.map({($0.rawIndex, $0.direction.rawValue)}))")
+        log("GO BACK IN STACK: BACK MOVEMENTS \(backMovents.map({($0.rawIndex, $0.direction.rawValue)}))")
         
         for (_, direction) in backMovents.reversed() {
             let backDirection = getOppositeDirection(direction: direction)
@@ -302,10 +339,10 @@ public struct FloodSpiralAgent {
         
         //describe()
         
-        print("GO BACK IN STACK: POSITION \(position) DIRECTION \(direction.rawValue)")
+        log("GO BACK IN STACK: POSITION \(position) DIRECTION \(direction.rawValue)")
     }
     
-    mutating public func explore(auto: Bool = true) {
+    public mutating func explore(auto: Bool = true) {
         let (_, neighborDirection, neighborsTotal) = searchMinimumNeighbor()
         
         if neighborsTotal == 0 {
@@ -340,11 +377,11 @@ public struct FloodSpiralAgent {
         }
     }
     
-    mutating public func findGoal(goal goalIndex: MatrixIndex) {
+    public mutating func findGoal(goal goalIndex: MatrixIndex) {
         if let goalRawIndex = maze.matrix.getRawIndex(at: goalIndex), let rawIndex = index {
-            print("GOAL INDEX: \(goalRawIndex) [\(rawIndex)]")
+            log("GOAL INDEX: \(goalRawIndex) [\(rawIndex)]")
             if rawIndex == goalRawIndex {
-                print("GOAL!!!")
+                log("GOAL!!!")
                 return
             }
         }
@@ -352,11 +389,17 @@ public struct FloodSpiralAgent {
         explore(auto: false)
         
         if stack.isEmpty && searchMinimumNeighbor().total == 0 {
-            print("GOAL NOT REACHEABLE <!><!><!>")
+            log("GOAL NOT REACHEABLE <!><!><!>")
             return
         }
         
         findGoal(goal: goalIndex)
+    }
+    
+    public func log(_ message: String) {
+        if debug {
+            print(message)
+        }
     }
     
     public func describe() {
